@@ -79,7 +79,7 @@ app.layout = html.Center([
     ])
 ])
 
-# Callback called at every m_interval change. Currently every 4 seconds
+# Callback called at every m_interval change.
 @app.callback(Output('my-gauge', 'value'), Output('my-bar', 'value'), Output('light-bar', 'value'), Output('light-bar', 'label'),
     #Output('light-status', 'label'), Output('light-status', 'color'),
     Output('image-light', 'src'), Output('toast', 'is_open'),

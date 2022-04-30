@@ -12,9 +12,11 @@ db = TinyDB("users_db.json")
 
 
 def createTable():
-    user1 = {"name": "Deema", "tagId" : "C3 6D D8 0B", "temperature" : 22, "light" : 3500}
+    user1 = {"name": "Default", "tagId" : "1A 1A 1A 1A", "temperature" : 22, "light" : 3000}
+    user2 = {"name": "Deema", "tagId" : "C3 6D D8 0B", "temperature" : 22, "light" : 3500}
     db.insert(user1)
-    print("Table has been created!");
+    db.insert(user2)
+    print("Table has been created!")
 
 # EMAIL
 port = 587  # For starttls
@@ -54,6 +56,15 @@ def verifyUser(inputTagId):
         currTagId = currentUser['tagId']
         print("Welcome, " + name + "! Your Tag ID is: " + currTagId + ".")
         sendUserEmail(name, currTagId)
+        return currentUser
 
     else:
         print("Authorization failed. You do not have access. gtfo")
+        return False
+
+def getDefaultUser():
+    defaultUser = db.get(Query().name == "Default")
+    return defaultUser
+
+print(getDefaultUser())
+# createTable()
