@@ -8,13 +8,18 @@ import easyimap as imap
 #probably only one of these is needed but i cant figure out which one and im sick of this so heres everything
 
 
-db = TinyDB("users_db.json")
+db = TinyDB('usersdb.json')
 
 
 def createTable():
-    user1 = {"name": "Deema", "tagId" : "C3 6D D8 0B", "temperature" : 22, "light" : 3500}
+    user1 = {"name": "Default", "tagId" : "1A 1A 1A 1A", "temperature" : 22, "light" : 3000}
+    user2 = {"name": "Deema", "tagId" : "C3 6D D8 0B", "temperature" : 21.1, "light" : 3500}
+    user3 = {"name": "Christian", "tagId" : "C3 5F 24 11", "temperature" : 24.5, "light" : 3500}
+    db.truncate()
     db.insert(user1)
-    print("Table has been created!");
+    db.insert(user2)
+    db.insert(user3)
+    print("Table has been created!")
 
 # EMAIL
 port = 587  # For starttls
@@ -54,6 +59,16 @@ def verifyUser(inputTagId):
         currTagId = currentUser['tagId']
         print("Welcome, " + name + "! Your Tag ID is: " + currTagId + ".")
         sendUserEmail(name, currTagId)
+        return currentUser
 
     else:
         print("Authorization failed. You do not have access. gtfo")
+        return False
+
+def getDefaultUserjs():
+    authorizedUsers = Query()
+    currentUser = db.get(authorizedUsers.name == "Default")
+    print(currentUser)
+    return currentUser
+
+#createTable()

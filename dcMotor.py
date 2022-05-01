@@ -17,3 +17,6 @@ def runMotor():
 
 def stopMotor():
     GPIO.output(enable, 0)
+
+#runMotor()
+#stopMotor()
