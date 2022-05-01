@@ -258,6 +258,16 @@ gauge = daq.Gauge(
     style={'color': 'white', 'padding-top': '5px', 'margin-left': '25px'}
 )
 
+lightLEDD = html.Center([
+                    daq.LEDDisplay(
+                    value="0.00",
+                    color='#FFDB00',
+                    id='darktheme-daq-leddisplay-4',
+                    className='dark-theme-control', 
+                    size=14
+                )
+            ])
+
 graduateBar = html.Div(style={'margin-left': '10%', 'margin-top': '3%'}, children=[
     daq.GraduatedBar(
         value=0,
@@ -271,7 +281,8 @@ graduateBar = html.Div(style={'margin-left': '10%', 'margin-top': '3%'}, childre
         id='darktheme-daq-graduatedbar',
         className='dark-theme-control',
         style={'color': 'white'}
-    )
+    ), 
+    lightLEDD
 ])
 
 
@@ -402,7 +413,7 @@ yAxis = []
               Output('darktheme-daq-thermometer', 'color'), Output('darktheme-daq-gauge', 'color'),
               Output('fan-image', 'src'), Output('powerButton', 'on'), Output('powerButton', 'color'),
               Output('graph', 'figure'), Output('darktheme-daq-leddisplay-1', 'value'), Output('darktheme-daq-leddisplay-3', 'value'),
-              Output('username', 'children'),
+              Output('darktheme-daq-leddisplay-4', 'value'), Output('username', 'children'),
     Input('interval-component', 'n_intervals'), Input('toast', 'is_open'))
 def update_output(value, value2):
     print("Running Callback")
@@ -498,6 +509,23 @@ def update_output(value, value2):
     xAxis.append(len(xAxis))
     yAxis.append(lightNumber)
     fig = go.Figure(data=[go.Scatter(x=xAxis, y=yAxis)])
+    fig.update_layout(
+    autosize=True,
+    width=500,
+    height=300,
+    font_color='white',
+    title=dict(
+        text = 'Light Intensity'
+        ),
+    margin=dict(
+        l=10,
+        r=10,
+        b=10,
+        t=25,
+        pad=0, 
+    ),
+    paper_bgcolor='#161616',
+)
 
 
     print(str(int(temperatureNumber)) + " " + str(int(humidityNumber)) + " " + str(int(lightNumber)))
@@ -505,7 +533,7 @@ def update_output(value, value2):
     return (temperatureNumber, humidityNumber, lightNumber,
     light_Image(lightNumber, lightThreshold), isOpen, temp_color(temperatureNumber), humidity_color(humidityNumber),
     fan_Image(lightNumber, lightThreshold, userRespondedYes), powerBtnStatus(temperatureNumber, temperatureThreshold, userRespondedYes),
-    powerBtnColor(temperatureNumber, temperatureThreshold, userRespondedYes), fig, str(temperatureThreshold), str(lightThreshold), user['name'])
+    powerBtnColor(temperatureNumber, temperatureThreshold, userRespondedYes), fig, str(temperatureThreshold), str(lightThreshold), lightNumber, user['name'])
 
 
 if __name__ == '__main__':
