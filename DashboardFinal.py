@@ -373,10 +373,6 @@ app.layout = html.Div(style={'background-color': '#1D1D1E', 'height': '1000px', 
         theme=theme, children=cardDisplay), topBar, toast, interval
 ])
 
-
-# Cleaning up the GPIO pins
-GPIO.cleanup()
-
 # Initialize some global variables
 global isLightEmailSent, isTemperatureEmailSent, userRespondedYes
 userLoggedIn = isLightEmailSent = isTemperatureEmailSent = userRespondedYes = False
