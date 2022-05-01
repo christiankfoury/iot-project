@@ -123,7 +123,6 @@ fig.update_layout(
 
 graph = dcc.Graph(figure=fig, id='graph')
 
-
 #--------Graphs--------
 
 
