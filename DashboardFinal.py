@@ -123,7 +123,6 @@ fig.update_layout(
 
 graph = dcc.Graph(figure=fig, id='graph')
 
-
 #--------Graphs--------
 
 
@@ -372,10 +371,6 @@ app.layout = html.Div(style={'background-color': '#1D1D1E', 'height': '1000px', 
     daq.DarkThemeProvider(
         theme=theme, children=cardDisplay), topBar, toast, interval
 ])
-
-
-# Cleaning up the GPIO pins
-GPIO.cleanup()
 
 # Initialize some global variables
 global isLightEmailSent, isTemperatureEmailSent, userRespondedYes
