@@ -15,7 +15,7 @@ import threading
 app = dash.Dash(__name__)
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-
+# method to change the picture of the lightbulb from ON or OFF
 def light_Image(lightValue, lightThreshold):
     if lightValue >= lightThreshold:
         lightbulbStatus = 'https://cdn.discordapp.com/attachments/758112392637972520/967979920124968980/closedLight.png'
@@ -24,7 +24,7 @@ def light_Image(lightValue, lightThreshold):
         lightbulbStatus = 'https://cdn.discordapp.com/attachments/758112392637972520/967979920389185536/lightOpen.png'
         return lightbulbStatus
 
-
+# method to change the color of the thermometer depending on the tempValue
 def temp_color(tempValue):
     if tempValue <= 20:
         tempColor = ValueColor['low']
@@ -36,7 +36,7 @@ def temp_color(tempValue):
         tempColor = ValueColor['high']
         return tempColor
 
-
+# method to switch the picture from a static fan image to a animated fan depending on the temperature
 def fan_Image(tempValue, tempThreshold, userRespondedYes):
     if (tempValue >= tempThreshold) and userRespondedYes == True:
         fanStatus = 'https://cdn.discordapp.com/attachments/949484785661792269/969694613717803080/fan2.png'
@@ -45,7 +45,7 @@ def fan_Image(tempValue, tempThreshold, userRespondedYes):
         fanStatus = 'https://cdn.discordapp.com/attachments/949484785661792269/969694771847266334/fan.png'
         return fanStatus
 
-
+# method to changet the status (ON/OFF) of the powerButton depending on temperature
 def powerBtnStatus(tempValue, tempThreshold, userRespondedYes):
     if (tempValue >= tempThreshold) and userRespondedYes == True:
         buttonStatus = 'True'
@@ -54,7 +54,7 @@ def powerBtnStatus(tempValue, tempThreshold, userRespondedYes):
         buttonStatus = 'False'
         return buttonStatus
 
-
+# method to change the color of the powerButton depenidng on the temperature
 def powerBtnColor(tempValue, tempThreshold, userRespondedYes):
     if (tempValue >= tempThreshold) and userRespondedYes == True:
         buttonColor = 'green'
@@ -63,7 +63,7 @@ def powerBtnColor(tempValue, tempThreshold, userRespondedYes):
         buttonColor = 'white'
         return buttonColor
 
-
+# method that changes the color of the Gauge depending on the humidity level
 def humidity_color(humValue):
     if humValue <= 35:
         humColor = ValueColor['low']
@@ -75,7 +75,7 @@ def humidity_color(humValue):
         humColor = ValueColor['high']
         return humColor
 
-
+# method that may or may not being used
 def light_Color(lightValue, lightThreshold):
     if lightValue <= lightThreshold:
         lightColor = ValueColor['low']
@@ -86,6 +86,7 @@ def light_Color(lightValue, lightThreshold):
 
 
 #--------Color Scheme--------
+# color scheme for the general look of the dashboard
 theme = {
     'dark': True,
     'detail': '#119ED4',
@@ -93,6 +94,7 @@ theme = {
     'secondary': '#FF001B',
 }
 
+# color scheme for the inside of the components
 ValueColor = {
     'dark': True,
     'low': '#0031F6',
@@ -105,8 +107,11 @@ ValueColor = {
 
 xAxis = []
 yAxis = []
+
+# graph is using xAxis and Yaxis to plo the points from the array
 fig = go.Figure(data=[go.Scatter(x=xAxis, y=yAxis)])
 
+# design and demensions of the graph
 fig.update_layout(
     autosize=True,
     width=500,
@@ -125,9 +130,9 @@ graph = dcc.Graph(figure=fig, id='graph')
 
 #--------Graphs--------
 
-
 header_height = '6rem', '10rem'
 
+# styling for the top nav bar
 HEADER_STYLE = {
     'position': 'fixed',
     'top': 0,
@@ -142,6 +147,7 @@ HEADER_STYLE = {
     'textAlign': 'center'
 }
 
+# styling for the sidebar nav
 SIDEBAR_STYLE = {
     'position': 'fixed',
     'top': header_height,
@@ -154,6 +160,7 @@ SIDEBAR_STYLE = {
     'color': '#7FDBFF'
 }
 
+# profile picture slot
 profile = html.Center([
     html.Img(
         #--------FAN GIF--------
@@ -165,7 +172,7 @@ profile = html.Center([
     html.H5("UserName", id="username"),
 ])
 
-
+# LEDD for displaying the users preference for temperature 
 leddTemp = daq.LEDDisplay(
     value="0.00",
     color='#04D55C',
@@ -173,6 +180,7 @@ leddTemp = daq.LEDDisplay(
     className='dark-theme-control'
 )
 
+# LEDD for displaying the users preference for light intensity 
 leddLight = daq.LEDDisplay(
     value="0.00",
     color='#FFDB00',
@@ -180,6 +188,7 @@ leddLight = daq.LEDDisplay(
     className='dark-theme-control'
 )
 
+# sideBar nav codes
 sideBar = html.Div([
     profile,
     html.Div(style={'margin-top': '5rem'}, children=[
@@ -194,20 +203,21 @@ sideBar = html.Div([
     ])
 ], style=SIDEBAR_STYLE, )
 
+# topBar nav code
 topBar = html.Div([
     html.H2("IoT Dash App")
 ], style=HEADER_STYLE)
 
 #---------------COMPONENTS---------------
 
+# uses light_Image() to change between the ON/OFF lightbulb image
 lightImage = html.Img(
     src=light_Image(0, 0),
     id='image-light',
     style={'width': '70%', 'margin-top': '2%', 'margin-left': '40%'}
 )
 
-#function to change the color of the temperature
-
+# uses fan_Image() to change between the ON/OFF fan image
 image = html.Img(
     #--------FAN GIF--------
     src=fan_Image(0, 0, False),
@@ -245,6 +255,7 @@ powerButton = html.Div([
     image
 ])
 
+# Gauge component
 gauge = daq.Gauge(
     min=0,
     max=100,
@@ -259,6 +270,7 @@ gauge = daq.Gauge(
     style={'color': 'white', 'padding-top': '5px', 'margin-left': '25px'}
 )
 
+# light LEDD component to show the current value of the light
 lightLEDD = html.Center([
                     daq.LEDDisplay(
                     value="0.00",
@@ -269,6 +281,7 @@ lightLEDD = html.Center([
                 )
             ])
 
+# graduateBar component
 graduateBar = html.Div(style={'margin-left': '10%', 'margin-top': '3%'}, children=[
     daq.GraduatedBar(
         value=0,
@@ -286,7 +299,7 @@ graduateBar = html.Div(style={'margin-left': '10%', 'margin-top': '3%'}, childre
     lightLEDD
 ])
 
-
+# toast message
 toast = html.Div([
     dbc.Toast(
         "Light email has been sent!",
@@ -386,6 +399,7 @@ cardDisplay = html.Div([
     cards2
 ])
 
+# the interval in miliseconds
 interval = dcc.Interval(
     id='interval-component',
     interval=3*1000,  # in milliseconds
