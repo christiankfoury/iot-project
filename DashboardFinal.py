@@ -158,7 +158,8 @@ profile = html.Center([
     html.Img(
         #--------FAN GIF--------
         src='https://animesher.com/orig/0/3/32/328/animesher.com_hakase-sad-nichijou-32839.jpg',
-        style={'width': '50%', 'margin-top': '12%', 'border-radius': '15rem'}
+        style={'width': '50%', 'margin-top': '12%', 'border-radius': '15rem'},
+        id='profile-image'
         #--------FAN GIF--------
     ),
     html.H5("UserName", id="username"),
@@ -263,7 +264,7 @@ lightLEDD = html.Center([
                     value="0.00",
                     color='#FFDB00',
                     id='darktheme-daq-leddisplay-4',
-                    className='dark-theme-control', 
+                    className='dark-theme-control',
                     size=14
                 )
             ])
@@ -274,21 +275,21 @@ graduateBar = html.Div(style={'margin-left': '10%', 'margin-top': '3%'}, childre
         max=4000,
         min=0,
         step=100,
-        label='light Intensity',
+        label='Light Intensity',
         color=theme['primary'],
         vertical="True",
         showCurrentValue=True,
         id='darktheme-daq-graduatedbar',
         className='dark-theme-control',
         style={'color': 'white'}
-    ), 
+    ),
     lightLEDD
 ])
 
 
 toast = html.Div([
     dbc.Toast(
-        "Email has been sent",
+        "Light email has been sent!",
         id="toast",
         header="Email",
         is_open=False,
@@ -297,6 +298,20 @@ toast = html.Div([
         # top: 66 positions the toast below the navbar
         style={"position": "fixed", "top": 66,
                "right": 10, "width": 350},
+    )
+])
+
+toast2 = html.Div([
+    dbc.Toast(
+        "Access Denied!",
+        id="toast2",
+        header="New Scan from Unknown User",
+        is_open=False,
+        dismissable=True,
+        icon="danger",
+        # top: 66 positions the toast below the navbar
+        style={"position": "fixed", "top": 66,
+               "left": 10, "width": 350},
     )
 ])
 
@@ -380,7 +395,7 @@ interval = dcc.Interval(
 
 app.layout = html.Div(style={'background-color': '#1D1D1E', 'height': '1000px', 'width': '100%', 'position': 'fixed'}, children=[
     daq.DarkThemeProvider(
-        theme=theme, children=cardDisplay), topBar, toast, interval
+        theme=theme, children=cardDisplay), topBar, toast, interval, toast2
 ])
 
 # Initialize some global variables
@@ -389,6 +404,8 @@ userLoggedIn = isLightEmailSent = isTemperatureEmailSent = userRespondedYes = Fa
 LED_PIN = 21
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(LED_PIN, GPIO.OUT)
+GPIO.output(LED_PIN, GPIO.LOW)
+
 
 rfidPayload = ""
 def getRfid():
@@ -399,10 +416,11 @@ def getRfid():
 
 first_thread = threading.Thread(target=getRfid)
 first_thread.start()
-user = getDefaultUserjs()
+user = getDefaultUser()
 oldUser = ""
 lightThreshold = user['light']
 temperatureThreshold = user['temperature']
+profileImage = user['profile']
 
 xAxis = []
 yAxis = []
@@ -413,14 +431,16 @@ yAxis = []
               Output('darktheme-daq-thermometer', 'color'), Output('darktheme-daq-gauge', 'color'),
               Output('fan-image', 'src'), Output('powerButton', 'on'), Output('powerButton', 'color'),
               Output('graph', 'figure'), Output('darktheme-daq-leddisplay-1', 'value'), Output('darktheme-daq-leddisplay-3', 'value'),
-              Output('darktheme-daq-leddisplay-4', 'value'), Output('username', 'children'),
-    Input('interval-component', 'n_intervals'), Input('toast', 'is_open'))
-def update_output(value, value2):
+              Output('darktheme-daq-leddisplay-4', 'value'), Output('username', 'children'), Output('toast2', 'is_open'),
+              Output('profile-image', 'src'),
+              Input('interval-component', 'n_intervals'), Input('toast', 'is_open'), Input('toast2', 'is_open'))
+def update_output(value, value2, value3):
     print("Running Callback")
     # Global variables
-    global isLightEmailSent, isOpen, isTemperatureEmailSent, userRespondedYes, user, oldUser
-    global lightThreshold, temperatureThreshold, rfidPayload
+    global isLightEmailSent, isOpen, isTemperatureEmailSent, userRespondedYes, user, oldUser, isOpen2
+    global lightThreshold, temperatureThreshold, rfidPayload, profileImage
     isOpen = value2
+    isOpen2 = value3
 
     # Should create its own method for temp, hum, and light
     # Subscribe MQTT variables
@@ -436,25 +456,29 @@ def update_output(value, value2):
         print("RFID Tag: " + rfidPayload)
         getUser = verifyUser(rfidPayload)
         if getUser != False:
+            isOpen2 = False
             if oldUser == "":
                 user = getUser
                 oldUser = getUser
                 lightThreshold = getUser['light']
                 temperatureThreshold = getUser['temperature']
+                profileImage = str(getUser['profile'])
             else:
                 if oldUser != getUser:
                     oldUser = getUser
                     user = getUser
                     lightThreshold = getUser['light']
                     temperatureThreshold = getUser['temperature']
+                    profileImage = str(getUser['profile'])
                     isOpen = False
-                    isLightEmailSent == False
+                    isLightEmailSent = False
                     if userRespondedYes == True:
                         stopMotor()
                         isTemperatureEmailSent = False
                         userRespondedYes = False
         else:
             print("Invalid RFID Tag")
+            isOpen2 = True
         rfidPayload = ""
 
     # Decoding the message
@@ -522,7 +546,7 @@ def update_output(value, value2):
         r=10,
         b=10,
         t=25,
-        pad=0, 
+        pad=0,
     ),
     paper_bgcolor='#161616',
 )
@@ -533,7 +557,8 @@ def update_output(value, value2):
     return (temperatureNumber, humidityNumber, lightNumber,
     light_Image(lightNumber, lightThreshold), isOpen, temp_color(temperatureNumber), humidity_color(humidityNumber),
     fan_Image(lightNumber, lightThreshold, userRespondedYes), powerBtnStatus(temperatureNumber, temperatureThreshold, userRespondedYes),
-    powerBtnColor(temperatureNumber, temperatureThreshold, userRespondedYes), fig, str(temperatureThreshold), str(lightThreshold), lightNumber, user['name'])
+    powerBtnColor(temperatureNumber, temperatureThreshold, userRespondedYes), fig, str(temperatureThreshold),
+    str(lightThreshold), lightNumber, user['name'], isOpen2, profileImage)
 
 
 if __name__ == '__main__':

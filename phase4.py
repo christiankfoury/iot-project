@@ -12,9 +12,12 @@ db = TinyDB('usersdb.json')
 
 
 def createTable():
-    user1 = {"name": "Default", "tagId" : "1A 1A 1A 1A", "temperature" : 22, "light" : 3000}
-    user2 = {"name": "Deema", "tagId" : "C3 6D D8 0B", "temperature" : 21.1, "light" : 3500}
-    user3 = {"name": "Christian", "tagId" : "C3 5F 24 11", "temperature" : 24.5, "light" : 3500}
+    user1 = {"name": "Default", "tagId": "1A 1A 1A 1A", "temperature": 22, "light": 3000,
+             "profile": "https://animesher.com/orig/0/3/32/328/animesher.com_hakase-sad-nichijou-32839.jpg"}
+    user2 = {"name": "Deema", "tagId": "C3 6D D8 0B", "temperature": 22.5, "light": 3500,
+             "profile": "https://d.newsweek.com/en/full/822411/pikachu-640x360-pokemon-anime.jpg?w=1600&h=1600&q=88&f=b65592079ef009b8b80897ddb8660b29"}
+    user3 = {"name": "Christian", "tagId": "C3 5F 24 11", "temperature": 21, "light": 3500,
+             "profile": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxTaw9tHoCyvyEPdWHUtTHdPk203cmsBLSkRYyjLVoNg4XvbPWpChyY04gg5B45BNj_Hg&usqp=CAU"}
     db.truncate()
     db.insert(user1)
     db.insert(user2)
@@ -51,6 +54,8 @@ def sendUserEmail(username, tagId):
 def verifyUser(inputTagId):
     print("You are now being authenticated...")
     authorizedUsers = Query()
+    if db.contains(authorizedUsers.tagId == inputTagId) == False:
+        return False
     currentUser = db.get(authorizedUsers.tagId == inputTagId)
 
     if currentUser:
@@ -65,10 +70,10 @@ def verifyUser(inputTagId):
         print("Authorization failed. You do not have access. gtfo")
         return False
 
-def getDefaultUserjs():
+def getDefaultUser():
     authorizedUsers = Query()
     currentUser = db.get(authorizedUsers.name == "Default")
     print(currentUser)
     return currentUser
 
-#createTable()
+createTable()
