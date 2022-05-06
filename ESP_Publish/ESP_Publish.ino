@@ -7,10 +7,9 @@
 #include <SPI.h>
 #include <MFRC522.h>
 
-
-// needed for rfid tag 
-#define SS_PIN  5  // ESP32 pin GIOP5 
-#define RST_PIN 27 // ESP32 pin GIOP27 
+// needed for rfid tag
+#define SS_PIN 5   // ESP32 pin GIOP5
+#define RST_PIN 27 // ESP32 pin GIOP27
 
 MFRC522 rfid(SS_PIN, RST_PIN);
 
@@ -63,7 +62,7 @@ void setup()
   client.setCallback(callback);
   dht.begin();
   SPI.begin(); // init SPI bus
-  // initializing rfid tag 
+  // initializing rfid tag
   rfid.PCD_Init(); // init MFRC522
 }
 
@@ -106,36 +105,39 @@ void loop()
 
   String tagString = "";
   // read rfid tag and store it in a variable
-  if (rfid.PICC_IsNewCardPresent()) { // new tag is available
-    if (rfid.PICC_ReadCardSerial()) { // NUID has been readed
+  if (rfid.PICC_IsNewCardPresent())
+  { // new tag is available
+    if (rfid.PICC_ReadCardSerial())
+    { // NUID has been readed
       MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
       Serial.print("RFID/NFC Tag Type: ");
-      //Serial.println(rfid.PICC_GetTypeName(piccType));
+      // Serial.println(rfid.PICC_GetTypeName(piccType));
 
       // print UID in Serial Monitor in the hex format
       Serial.print("UID:");
-      for (int i = 0; i < rfid.uid.size; i++) {
+      for (int i = 0; i < rfid.uid.size; i++)
+      {
         Serial.print(rfid.uid.uidByte[i] < 0x10 ? " 0" : " ");
         Serial.print(rfid.uid.uidByte[i], HEX);
         tagString.concat(String(rfid.uid.uidByte[i] < 0x10 ? " 0" : " "));
         tagString.concat(String(rfid.uid.uidByte[i], HEX));
-        
       }
       Serial.println();
 
-      rfid.PICC_HaltA(); // halt PICC
+      rfid.PICC_HaltA();      // halt PICC
       rfid.PCD_StopCrypto1(); // stop encryption on PCD
-
     }
   }
-  // make it all uppercase 
-  tagString.toUpperCase();
-  // remove space that is automatically there
-  tagString = tagString.substring(1);
-  tagString.toCharArray(tagChar, tagString.length() + 1);
-  client.publish("IoTlab/rfid", tagChar);
+  // make it all uppercase
+  if (!tagString.equals(""))
+  {
+    tagString.toUpperCase();
+    // remove space that is automatically there
+    tagString = tagString.substring(1);
+    tagString.toCharArray(tagChar, tagString.length() + 1);
+    client.publish("IoTlab/rfid", tagChar);
+  }
 
-  
   client.publish("IoTlab/temperature", tempChar);
   client.publish("IoTlab/humidity", humChar);
 
